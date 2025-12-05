@@ -6,31 +6,57 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  name      String?
-  roleId    Int
-  role      Role     @relation(fields: [roleId], references: [id])
-  loans     Loan[]
-  createdAt DateTime @default(now())
+// 1. ENUMS: Better than a separate table for static roles
+enum Role {
+  ADMIN
+  LIBRARIAN
+  STUDENT
 }
 
-model Role {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  users User[]
+enum BorrowStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+}
+
+model User {
+  id        String   @id @default(uuid()) 
+  
+  email     String   @unique
+  password  String
+  fullName  String
+  
+  //Role
+  role      Role     @default(STUDENT)
+  
+  //The Firebase Cloud Messaging token for push notifications
+  fcmToken  String?  
+  
+  loans     Loan[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Book {
-  id          Int      @id @default(autoincrement())
-  title       String
-  isbn        String   @unique
-  description String?
-  copies      Int      @default(1)
-  authors     Author[]
-  loans       Loan[]
+  id              Int      @id @default(autoincrement())
+  title           String
+  isbn            String   @unique
+  description     String?
+  coverImage      String?
+  
+  // Inventory Management:
+  totalCopies     Int      @default(1) 
+  availableCopies Int      @default(1) 
+  
+  // QR stickers on physical books
+  qrCode          String?  @unique 
+
+  authors         Author[]
+  loans           Loan[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Author {
@@ -41,12 +67,22 @@ model Author {
 }
 
 model Loan {
-  id         Int       @id @default(autoincrement())
-  userId     Int
-  user       User      @relation(fields: [userId], references: [id])
-  bookId     Int
-  book       Book      @relation(fields: [bookId], references: [id])
-  borrowedAt DateTime  @default(now())
-  dueDate    DateTime
-  returnedAt DateTime?
+  id          Int          @id @default(autoincrement())
+  
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  
+  bookId      Int
+  book        Book         @relation(fields: [bookId], references: [id])
+  
+  borrowedAt  DateTime     @default(now())
+  dueDate     DateTime
+  returnedAt  DateTime?
+  
+  // Status Tracking
+  status      BorrowStatus @default(BORROWED)
+  
+  // Penalties
+  penalty     Float        @default(0.0) 
+  penaltyPaid Boolean      @default(false)
 }
