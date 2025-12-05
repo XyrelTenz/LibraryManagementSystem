@@ -1,27 +1,30 @@
 import { Module } from '@nestjs/common';
-import { BookModules } from './books/books.module';
 import { RouterModule } from '@nestjs/core';
+
+// Feature Modules
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 import { BorrowingModule } from './borrowing/borrowing.module';
 import { NotificationsModule } from './notifications/notifications.module';
-import { AuthModule } from './auth/auth.module';
-import { BookModule } from './book/book.module';
-import { UsersModule } from './users/users.module';
+
+// Core/Shared Modules
+import { PrismaModule } from '.././prisma/prisma.module';
 
 @Module({
   imports: [
-    BookModules,
-    RouterModule.register([
-      {
-        path: "book",
-        module: BookModules
-      }
-    ]),
+    PrismaModule,
+
+    AuthModule,
+    UsersModule,
     BorrowingModule,
     NotificationsModule,
-    AuthModule,
-    BookModule,
-    UsersModule
+
+    // RouterModule.register([
+    //   {
+    //     path: 'library', 
+    //     module: BookModules,
+    //   },
+    // ]),
   ],
 })
 export class AppModule { }
-
