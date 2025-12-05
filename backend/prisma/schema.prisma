@@ -6,7 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// 1. ENUMS: Better than a separate table for static roles
 enum Role {
   ADMIN
   LIBRARIAN
@@ -45,7 +44,7 @@ model Book {
   description     String?
   coverImage      String?
   
-  // Inventory Management:
+  // Inventory Management
   totalCopies     Int      @default(1) 
   availableCopies Int      @default(1) 
   
