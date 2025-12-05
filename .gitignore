@@ -17,6 +17,7 @@ lerna-debug.log*
 *.env
 *.env.*
 *.http
+scheme.prisma
 
 # Runtime data
 pids
