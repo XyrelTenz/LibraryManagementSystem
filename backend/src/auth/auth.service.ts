@@ -5,6 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { AuthEntity } from './entities/auth.entity';
 import { PrismaService } from "../../prisma/prisma.service";
+import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -37,15 +38,14 @@ export class AuthService {
      * Return the object Directly
      * Controller's Intercepter will handle hiding the password
      * */
-    return {
+    return new AuthEntity({
       accessToken,
-      // user: userWithoutPassword as any,
-      user,
-    };
+      user: new UserEntity(user)
+    })
   }
 
   async register(registerDto: RegisterDto): Promise<AuthEntity> {
-    const { email, password, fullName } = registerDto;
+    const { email, password, fullName, role } = registerDto;
 
     // Check for duplicates before doing expensive work like HASHING
     const existingUser = await this.prisma.user.findUnique({ where: { email } });
@@ -60,6 +60,7 @@ export class AuthService {
         email,
         fullName,
         password: hashedPassword,
+        role: role
       },
     });
 
@@ -71,7 +72,7 @@ export class AuthService {
     return {
       accessToken,
       // user: userWithoutPassword as any,
-      user
+      user: new UserEntity(user)
     };
   }
 
