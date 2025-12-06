@@ -7,13 +7,14 @@ import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
+// SRP - Only handles HTTP like (routes, status codes)
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOkResponse({ type: AuthEntity }) // Tells Swagger what the return looks like
+  @ApiOkResponse({ type: AuthEntity })
   async login(@Body() loginDto: LoginDto): Promise<AuthEntity> {
     return this.authService.login(loginDto);
   }

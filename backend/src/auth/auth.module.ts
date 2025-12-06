@@ -8,8 +8,9 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [
     PrismaModule,
     JwtModule.register({
+      // Make JWT available everywhere without re-importing
       global: true,
-      secret: process.env.JWT_SECRET || 'secretKey123',
+      secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: '7d' },
     }),
   ],

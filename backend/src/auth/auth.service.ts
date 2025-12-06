@@ -28,19 +28,26 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
+    // Generates Token
     const accessToken = this.generateToken(user.id, user.role);
 
-    const { password: _, ...userWithoutPassword } = user;
+    // const { password: _, ...userWithoutPassword } = user;
 
+    /*
+     * Return the object Directly
+     * Controller's Intercepter will handle hiding the password
+     * */
     return {
       accessToken,
-      user: userWithoutPassword as any,
+      // user: userWithoutPassword as any,
+      user,
     };
   }
 
   async register(registerDto: RegisterDto): Promise<AuthEntity> {
     const { email, password, fullName } = registerDto;
 
+    // Check for duplicates before doing expensive work like HASHING
     const existingUser = await this.prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       throw new ConflictException('Email already in use');
@@ -56,13 +63,15 @@ export class AuthService {
       },
     });
 
+    // Generate Tokens diretly After use is logged in
     const accessToken = this.generateToken(user.id, user.role);
 
-    const { password: _, ...userWithoutPassword } = user;
+    // const { password: _, ...userWithoutPassword } = user;
 
     return {
       accessToken,
-      user: userWithoutPassword as any,
+      // user: userWithoutPassword as any,
+      user
     };
   }
 

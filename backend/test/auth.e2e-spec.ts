@@ -52,14 +52,14 @@ describe('Auth System (e2e)', () => {
         .send(testUser)
         .expect(201)
         .expect((res: any) => {
-          // 1. Check for Token
+          // Check for Token
           expect(res.body).toHaveProperty('accessToken');
 
-          // 2. Check User Data
+          // Check User Data
           expect(res.body.user).toHaveProperty('email', testUser.email);
           expect(res.body.user).toHaveProperty('fullName', testUser.fullName);
 
-          // 3. SECURITY CHECK: Password must NOT be in the response
+          // SECURITY CHECK: Password must NOT be in the response
           expect(res.body.user).not.toHaveProperty('password');
         });
     });
@@ -68,11 +68,12 @@ describe('Auth System (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'not-an-email', // Invalid email
-          password: '123',
-          fullName: 'Test',
+          email: 'xdemocrito1@gmail.com',
+          password: 'xyrel',
+          fullName: 'Xyrel D. Tenefrancia',
+          role: "Admin"
         })
-        .expect(400); // Expect Bad Request
+        .expect(400);
     });
   });
 });
