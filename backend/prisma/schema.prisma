@@ -4,18 +4,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-}
-
-enum Role {
-  ADMIN
-  LIBRARIAN
-  STUDENT
-}
-
-enum BorrowStatus {
-  BORROWED
-  RETURNED
-  OVERDUE
+  url = env("DATABASE_URL")
 }
 
 model User {
@@ -26,7 +15,7 @@ model User {
   fullName  String
   
   //Role
-  role      Role     @default(STUDENT)
+  role      String     @default("STUDENT")
   
   //The Firebase Cloud Messaging token for push notifications
   fcmToken  String?  
@@ -66,22 +55,22 @@ model Author {
 }
 
 model Loan {
-  id          Int          @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   
   userId      String
-  user        User         @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
   
   bookId      Int
-  book        Book         @relation(fields: [bookId], references: [id])
+  book        Book     @relation(fields: [bookId], references: [id])
   
-  borrowedAt  DateTime     @default(now())
+  borrowedAt  DateTime @default(now())
   dueDate     DateTime
   returnedAt  DateTime?
   
-  // Status Tracking
-  status      BorrowStatus @default(BORROWED)
+  // Status Tracking: Changed from Enum to String for SQLite
+  status      String   @default("BORROWED")
   
   // Penalties
-  penalty     Float        @default(0.0) 
-  penaltyPaid Boolean      @default(false)
+  penalty     Float    @default(0.0) 
+  penaltyPaid Boolean  @default(false)
 }
