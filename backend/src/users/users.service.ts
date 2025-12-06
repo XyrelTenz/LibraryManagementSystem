@@ -25,7 +25,6 @@ export class UsersService {
 
   async findAll(): Promise<UserEntity[]> {
     const users = await this.prisma.user.findMany();
-    // Map raw data to UserEntity to ensure @Exclude() works later 
     return users.map((user) => new UserEntity(user));
   }
 
@@ -40,7 +39,6 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
-    // DRY/Security: If password is being updated will make it HASH
     if (updateUserDto.password) {
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
