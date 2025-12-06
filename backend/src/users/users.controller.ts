@@ -8,18 +8,20 @@ import {
   Delete,
   UseInterceptors,
   ClassSerializerInterceptor,
+  UseGuards,
   // HttpStatus,
   // HttpCode
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
-// IMPORTANT: This interceptor triggers the @Exclude() on the password field
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -30,6 +32,7 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   @ApiOkResponse({ type: UserEntity, isArray: true })
   findAll() {
