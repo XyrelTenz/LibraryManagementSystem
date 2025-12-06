@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from '../prisma/prisma.service';
@@ -14,6 +14,12 @@ describe('Auth System (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    // ⬇️ CRITICAL: This enables validation logic (like @IsEmail) in the test environment
+    app.useGlobalPipes(new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }));
 
     prisma = app.get(PrismaService);
 
@@ -33,6 +39,7 @@ describe('Auth System (e2e)', () => {
       fullName: 'Juan Dela Cruz',
     };
 
+    // Clean DB before each test so we don't get "Email already taken" errors
     beforeEach(async () => {
       await prisma.user.deleteMany({
         where: { email: testUser.email },
@@ -45,10 +52,15 @@ describe('Auth System (e2e)', () => {
         .send(testUser)
         .expect(201)
         .expect((res: any) => {
-          // Validation Logic
+          // 1. Check for Token
           expect(res.body).toHaveProperty('accessToken');
+
+          // 2. Check User Data
           expect(res.body.user).toHaveProperty('email', testUser.email);
-          expect(res.body.user).not.toHaveProperty('password'); // Security check
+          expect(res.body.user).toHaveProperty('fullName', testUser.fullName);
+
+          // 3. SECURITY CHECK: Password must NOT be in the response
+          expect(res.body.user).not.toHaveProperty('password');
         });
     });
 
@@ -56,11 +68,11 @@ describe('Auth System (e2e)', () => {
       return request(app.getHttpServer())
         .post('/auth/register')
         .send({
-          email: 'not-an-email',
+          email: 'not-an-email', // Invalid email
           password: '123',
           fullName: 'Test',
         })
-        .expect(400);
+        .expect(400); // Expect Bad Request
     });
   });
 });
