@@ -1,12 +1,15 @@
-import { IsInt, IsUUID, IsISO8601 } from 'class-validator';
+import { IsInt, IsUUID, IsISO8601, IsNotEmpty } from 'class-validator';
 
-export class CreateBorrowDto {
+export class CreateBorrowingDto {
   @IsInt()
+  @IsNotEmpty()
   bookId: number;
 
   @IsUUID()
+  @IsNotEmpty()
   userId: string;
 
   @IsISO8601()
+  @IsNotEmpty()
   dueDate: string;
 }

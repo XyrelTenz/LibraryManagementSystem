@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe } from '@nestjs/common';
 import { BorrowingService } from './borrowing.service';
 import { CreateBorrowingDto } from './dto/create-borrowing.dto';
 import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 
 @Controller('borrowing')
 export class BorrowingController {
-  constructor(private readonly borrowingService: BorrowingService) {}
+  constructor(private readonly borrowingService: BorrowingService) { }
 
   @Post()
   create(@Body() createBorrowingDto: CreateBorrowingDto) {
@@ -18,17 +18,19 @@ export class BorrowingController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.borrowingService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.borrowingService.findOne(id);
   }
 
+  // Specific Endpoint to Return a Book
+  @Patch(':id/return')
+  returnBook(@Param('id', ParseIntPipe) id: number) {
+    return this.borrowingService.returnBook(id);
+  }
+
+  // General Update (For Admin Corrections)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBorrowingDto: UpdateBorrowingDto) {
-    return this.borrowingService.update(+id, updateBorrowingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.borrowingService.remove(+id);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateBorrowingDto: UpdateBorrowingDto) {
+    return this.borrowingService.update(id, updateBorrowingDto);
   }
 }
