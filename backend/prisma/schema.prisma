@@ -8,43 +8,47 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid()) 
-  
+  id        String   @id @default(uuid())
   email     String   @unique
   password  String
   fullName  String
+  role      String   @default("STUDENT")
+  fcmToken  String?  // For Firebase Cloud Messaging
   
-  //Role
-  role      String     @default("STUDENT")
-  
-  //The Firebase Cloud Messaging token for push notifications
-  fcmToken  String?  
-  
-  loans     Loan[]
-  
+  loans         Loan[]
+  notifications Notification[] // Relation to notifications
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Book {
-  id              Int      @id @default(autoincrement())
-  title           String
-  isbn            String   @unique
-  description     String?
-  coverImage      String?
+  id            Int      @id @default(autoincrement())
+  title         String
+  isbn          String   @unique
+  description   String?
+  coverImage    String?
   
-  // Inventory Management
+  // Inventory
   totalCopies     Int      @default(1) 
   availableCopies Int      @default(1) 
   
-  // QR stickers on physical books
-  qrCode          String?  @unique 
+  qrCode        String?  @unique 
 
-  authors         Author[]
-  loans           Loan[]
+  // Relations
+  authors       Author[]
+  categoryId    Int?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  loans         Loan[]
   
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  books Book[]
 }
 
 model Author {
@@ -67,9 +71,22 @@ model Loan {
   dueDate     DateTime
   returnedAt  DateTime?
   
+  // Status: "BORROWED", "RETURNED", "OVERDUE"
   status      String   @default("BORROWED")
   
-  // Penalties
   penalty     Float    @default(0.0) 
   penaltyPaid Boolean  @default(false)
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  title     String
+  body      String
+  type      String   @default("INFO") // "ALERT", "REMINDER"
+  isRead    Boolean  @default(false)
+  
+  createdAt DateTime @default(now())
 }
