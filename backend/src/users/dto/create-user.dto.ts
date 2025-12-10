@@ -4,7 +4,7 @@ import { UserRole } from "../../shared/enums/role.enum";
 
 
 export class CreateUserDTO {
-  @ApiProperty({ example: "Xyrel" })
+  @ApiProperty({ example: "Xyrel D. Tenefrancia" })
   @IsString()
   @IsNotEmpty()
   fullName: string;
