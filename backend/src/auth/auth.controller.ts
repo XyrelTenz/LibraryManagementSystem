@@ -12,6 +12,7 @@ import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  // POST METHOD FOR LOGIN
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: AuthEntity })
@@ -19,6 +20,7 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  // POST METHOD FOR REGISTER
   @Post('register')
   @ApiOkResponse({ type: AuthEntity })
   async register(@Body() registerDto: RegisterDto): Promise<AuthEntity> {
