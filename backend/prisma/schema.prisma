@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url = env("DATABASE_URL")
 }
 
 model User {
@@ -68,7 +67,6 @@ model Loan {
   dueDate     DateTime
   returnedAt  DateTime?
   
-  // Status Tracking: Changed from Enum to String for SQLite
   status      String   @default("BORROWED")
   
   // Penalties
