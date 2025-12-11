@@ -39,7 +39,6 @@ describe('AuthController', () => {
       const loginDto: LoginDto = { email: 'test@test.com', password: 'password' };
       const result: AuthEntity = { accessToken: 'token', user: {} as any };
 
-      // Mock the return value
       mockAuthService.login.mockResolvedValue(result);
 
       expect(await controller.login(loginDto)).toEqual(result);

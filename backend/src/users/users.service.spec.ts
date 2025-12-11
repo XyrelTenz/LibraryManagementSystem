@@ -70,10 +70,8 @@ describe('UsersService', () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_password_123');
       mockPrismaService.user.create.mockResolvedValue(mockUserRecord);
 
-      // Act
       const result = await service.create(mockUserDto);
 
-      // Assert
       expect(bcrypt.hash).toHaveBeenCalledWith(mockUserDto.password, 10);
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: {
@@ -111,7 +109,6 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should hash password if provided and update user', async () => {
-      // Arrange
       const updateUserDto = { password: 'newPassword' };
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_new_password');
 
@@ -121,10 +118,8 @@ describe('UsersService', () => {
         password: 'hashed_new_password',
       });
 
-      // Act
       const result = await service.update(mockUserId, updateUserDto);
 
-      // Assert
       expect(bcrypt.hash).toHaveBeenCalledWith('newPassword', 10);
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUserId },
@@ -134,16 +129,13 @@ describe('UsersService', () => {
     });
 
     it('should not hash password if not provided', async () => {
-      // Arrange
       const updateUserDto = { fullName: 'Updated Name' };
 
       mockPrismaService.user.findUnique.mockResolvedValue(mockUserRecord);
       mockPrismaService.user.update.mockResolvedValue({ ...mockUserRecord, fullName: 'Updated Name' });
 
-      // Act
       await service.update(mockUserId, updateUserDto);
 
-      // Assert
       expect(bcrypt.hash).not.toHaveBeenCalled();
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: mockUserId },

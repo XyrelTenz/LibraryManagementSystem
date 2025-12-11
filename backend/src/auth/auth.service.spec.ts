@@ -4,9 +4,8 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException, ConflictException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '../shared/enums/role.enum'; // Adjust path
+import { UserRole } from '../shared/enums/role.enum';
 
-// 1. Mock bcrypt to avoid actual hashing during tests
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
   hash: jest.fn(),
@@ -17,7 +16,6 @@ describe('AuthService', () => {
   let prisma: PrismaService;
   let jwt: JwtService;
 
-  // 2. Mock Prisma and JWT
   const mockPrismaService = {
     user: {
       findUnique: jest.fn(),
@@ -69,7 +67,7 @@ describe('AuthService', () => {
     it('should throw UnauthorizedException if password does not match', async () => {
       const mockUser = { id: '1', email: 'test@test.com', password: 'hashedPassword' };
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false); // Force password fail
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       await expect(service.login(loginDto)).rejects.toThrow(UnauthorizedException);
     });
@@ -77,7 +75,7 @@ describe('AuthService', () => {
     it('should return accessToken and user if login successful', async () => {
       const mockUser = { id: '1', email: 'test@test.com', password: 'hashedPassword', role: 'STUDENT' };
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      (bcrypt.compare as jest.Mock).mockResolvedValue(true); // Force password success
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       mockJwtService.sign.mockReturnValue('mockToken');
 
       const result = await service.login(loginDto);
@@ -111,7 +109,7 @@ describe('AuthService', () => {
         updatedAt: new Date()
       };
 
-      mockPrismaService.user.findUnique.mockResolvedValue(null); // No existing user
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
       mockPrismaService.user.create.mockResolvedValue(mockUser);
       mockJwtService.sign.mockReturnValue('mockToken');
