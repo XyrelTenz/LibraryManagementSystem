@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { BorrowingService } from './borrowing.service';
 import { PrismaService } from '../../prisma/prisma.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 
-// Mock the Prisma Client structure used inside the transaction
 const mockTx = {
   book: {
     findUnique: jest.fn(),
@@ -20,9 +19,8 @@ const mockTx = {
   },
 };
 
-// Mock PrismaService including $transaction
 const mockPrismaService = {
-  $transaction: jest.fn((callback) => callback(mockTx)), // Execute callback immediately
+  $transaction: jest.fn((callback) => callback(mockTx)),
   loan: {
     findMany: jest.fn(),
     update: jest.fn(),
@@ -43,7 +41,6 @@ describe('BorrowingService', () => {
 
     service = module.get<BorrowingService>(BorrowingService);
 
-    // Clear mocks before each test
     jest.clearAllMocks();
   });
 
@@ -53,7 +50,6 @@ describe('BorrowingService', () => {
 
   describe('create (Borrow)', () => {
     it('should borrow a book successfully', async () => {
-      // Setup mock returns
       mockTx.book.findUnique.mockResolvedValue({ id: 1, availableCopies: 5 });
       mockTx.user.findUnique.mockResolvedValue({ id: 'user-1' });
       mockTx.loan.create.mockResolvedValue({ id: 1, status: 'BORROWED' });
@@ -62,7 +58,7 @@ describe('BorrowingService', () => {
       const result = await service.create(dto);
 
       expect(result).toEqual({ id: 1, status: 'BORROWED' });
-      expect(mockTx.book.update).toHaveBeenCalled(); // Verify stock was decremented
+      expect(mockTx.book.update).toHaveBeenCalled();
     });
 
     it('should fail if no copies available', async () => {
@@ -76,7 +72,7 @@ describe('BorrowingService', () => {
   describe('returnBook', () => {
     it('should return a book and calculate penalty', async () => {
       const pastDueDate = new Date();
-      pastDueDate.setDate(pastDueDate.getDate() - 5); // 5 days ago
+      pastDueDate.setDate(pastDueDate.getDate() - 5);
 
       mockTx.loan.findUnique.mockResolvedValue({
         id: 1,
@@ -85,12 +81,12 @@ describe('BorrowingService', () => {
         bookId: 10
       });
 
-      mockTx.loan.update.mockResolvedValue({ id: 1, status: 'OVERDUE', penalty: 25 }); // 5 days * 5.0
+      mockTx.loan.update.mockResolvedValue({ id: 1, status: 'OVERDUE', penalty: 25 });
 
       const result = await service.returnBook(1);
 
       expect(result.status).toBe('OVERDUE');
-      expect(mockTx.book.update).toHaveBeenCalled(); // Verify stock increment
+      expect(mockTx.book.update).toHaveBeenCalled();
     });
   });
 });
