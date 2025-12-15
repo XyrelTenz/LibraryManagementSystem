@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsObject, IsEnum } from 'class-validator';
+
+export enum NotificationType {
+  INFO = 'info',
+  WARNING = 'warning',
+  REMINDER = 'reminder',
+}
 
 export class CreateNotificationDto {
   @IsString()
@@ -13,8 +19,12 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   body: string;
 
-  // Custom Data for APP Logic
+  @IsEnum(NotificationType)
   @IsOptional()
+  type?: NotificationType = NotificationType.INFO;
+
+  // Custom Data for ROUTING
   @IsObject()
-  data?: Record<string, string>;
+  @IsOptional()
+  data?: Record<string, any>;
 }
