@@ -10,7 +10,7 @@ import { Roles } from '../shared/decorators/roles.decorator';
 import { UserRole } from '../shared/enums/role.enum';
 import { type AuthenticatedRequest } from '../shared/interface/authenticated-request.interface';
 
-@Controller('notifications')
+@Controller()
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) { }
