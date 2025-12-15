@@ -14,7 +14,6 @@ model User {
   password  String
   fullName  String
   role      String   @default("STUDENT")
-  fcmToken  String?  // For Firebase Cloud Messaging
   
   loans         Loan[]
   notifications Notification[] // Relation to notifications
@@ -86,8 +85,10 @@ model Notification {
   
   title     String
   body      String
-  type      String   @default("INFO") // "ALERT", "REMINDER"
+  type      String   @default("INFO") 
   isRead    Boolean  @default(false)
   
+  data      String?
+
   createdAt DateTime @default(now())
 }

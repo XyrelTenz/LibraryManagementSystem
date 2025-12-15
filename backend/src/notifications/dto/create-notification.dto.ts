@@ -1,15 +1,9 @@
 import { IsString, IsNotEmpty, IsOptional, IsObject, IsEnum } from 'class-validator';
 
-export enum NotificationType {
-  INFO = 'info',
-  WARNING = 'warning',
-  REMINDER = 'reminder',
-}
-
 export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  userId: string; // Target User ID
 
   @IsString()
   @IsNotEmpty()
@@ -19,12 +13,11 @@ export class CreateNotificationDto {
   @IsNotEmpty()
   body: string;
 
-  @IsEnum(NotificationType)
+  @IsString()
   @IsOptional()
-  type?: NotificationType = NotificationType.INFO;
+  type?: string = 'INFO'; // 'INFO', 'WARNING', 'ALERT'
 
-  // Custom Data for ROUTING
   @IsObject()
   @IsOptional()
-  data?: Record<string, any>;
+  data?: Record<string, any>; // e.g. { route: '/books/1' }
 }
