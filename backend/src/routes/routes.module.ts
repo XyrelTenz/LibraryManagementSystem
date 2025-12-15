@@ -15,25 +15,20 @@ import { NotificationsModule } from '../notifications/notifications.module';
 
     RouterModule.register([
       {
-        path: 'api',
-        children: [
-          {
-            path: 'auth',
-            module: AuthModule,
-          },
-          {
-            path: 'users',
-            module: UsersModule,
-          },
-          {
-            path: 'borrowing',
-            module: BorrowingModule,
-          },
-          {
-            path: 'notifications',
-            module: NotificationsModule,
-          },
-        ],
+        path: 'auth',
+        module: AuthModule,
+      },
+      {
+        path: 'users',
+        module: UsersModule,
+      },
+      {
+        path: 'borrowing',
+        module: BorrowingModule,
+      },
+      {
+        path: 'notifications',
+        module: NotificationsModule,
       },
     ]),
   ],

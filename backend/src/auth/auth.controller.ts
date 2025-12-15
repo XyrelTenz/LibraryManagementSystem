@@ -6,7 +6,7 @@ import { AuthEntity } from './entities/auth.entity';
 import { ApiTags, ApiOkResponse } from '@nestjs/swagger';
 
 @ApiTags('Auth')
-@Controller('auth')
+@Controller()
 // SRP - Only handles HTTP like (routes, status codes)
 @UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
