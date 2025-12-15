@@ -4,6 +4,7 @@ import { NotificationsGateway } from './notifications.gateway';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { UserRole } from '../shared/enums/role.enum';
 
 @Injectable()
 export class NotificationsService {
@@ -14,7 +15,6 @@ export class NotificationsService {
     private readonly gateway: NotificationsGateway,
   ) { }
 
-  // 1. Create & Send
   async create(dto: CreateNotificationDto) {
     // Save to DB
     const notification = await this.prisma.notification.create({
@@ -27,17 +27,15 @@ export class NotificationsService {
       },
     });
 
-    // Send Real-time
     const payload = {
       ...notification,
-      data: dto.data, // Send parsed object to client
+      data: dto.data,
     };
     this.gateway.sendToUser(dto.userId, payload);
 
     return notification;
   }
 
-  // 2. Find All for User
   async findAll(userId: string) {
     const notifications = await this.prisma.notification.findMany({
       where: { userId },
@@ -50,7 +48,6 @@ export class NotificationsService {
     }));
   }
 
-  // 3. Mark as Read
   async update(id: number, dto: UpdateNotificationDto) {
     return this.prisma.notification.update({
       where: { id },
@@ -58,7 +55,6 @@ export class NotificationsService {
     });
   }
 
-  // 4. CRON JOB: Check Overdue Loans
   @Cron(CronExpression.EVERY_DAY_AT_8AM)
   async handleOverdueLoans() {
     this.logger.log('Running daily overdue check...');
@@ -84,7 +80,7 @@ export class NotificationsService {
     }
 
     if (overdueLoans.length > 0) {
-      this.gateway.sendToRole('LIBRARIAN', {
+      this.gateway.sendToRole(UserRole.LIBRARIAN, {
         title: 'Overdue Report',
         body: `${overdueLoans.length} books are overdue today.`,
       });

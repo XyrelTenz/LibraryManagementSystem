@@ -1,9 +1,9 @@
-import { IsString, IsNotEmpty, IsOptional, IsObject, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsObject } from 'class-validator';
 
 export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
-  userId: string; // Target User ID
+  userId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -15,9 +15,9 @@ export class CreateNotificationDto {
 
   @IsString()
   @IsOptional()
-  type?: string = 'INFO'; // 'INFO', 'WARNING', 'ALERT'
+  type?: string = 'INFO';
 
   @IsObject()
   @IsOptional()
-  data?: Record<string, any>; // e.g. { route: '/books/1' }
+  data?: Record<string, any>;
 }
