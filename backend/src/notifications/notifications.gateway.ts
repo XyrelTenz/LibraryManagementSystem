@@ -13,9 +13,10 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
   @WebSocketServer()
   server: Server;
 
+  // Constructor for JWT Service
   constructor(private readonly jwtService: JwtService) { }
 
-  async handleConnection(client: Socket) {
+  async handleConnection(client: Socket): Promise<void> {
     try {
       const token = this.extractToken(client);
 
