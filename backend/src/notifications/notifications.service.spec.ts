@@ -1,28 +1,31 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsService } from './notifications.service';
-import { NotificationsGateway } from './notifications.gateway';
 import { PrismaService } from '../../prisma/prisma.service';
-
-const mockPrismaService = {
-  notification: {
-    create: jest.fn().mockImplementation((dto) => Promise.resolve({ id: 1, ...dto.data })),
-    findMany: jest.fn().mockResolvedValue([]),
-    update: jest.fn(),
-  },
-  loan: {
-    findMany: jest.fn().mockResolvedValue([]),
-  },
-};
-
-const mockGateway = {
-  sendToUser: jest.fn(),
-  sendToRole: jest.fn(),
-};
+import { NotificationsGateway } from './notifications.gateway';
+import { UserRole } from '../shared/enums/role.enum';
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
-  let gateway: NotificationsGateway;
   let prisma: PrismaService;
+  let gateway: NotificationsGateway;
+
+  // Mock Prisma Client
+  const mockPrismaService = {
+    notification: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      update: jest.fn(),
+    },
+    loan: {
+      findMany: jest.fn(),
+    },
+  };
+
+  // Mock WebSocket Gateway
+  const mockGateway = {
+    sendToUser: jest.fn(),
+    sendToRole: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,8 +37,12 @@ describe('NotificationsService', () => {
     }).compile();
 
     service = module.get<NotificationsService>(NotificationsService);
-    gateway = module.get<NotificationsGateway>(NotificationsGateway);
     prisma = module.get<PrismaService>(PrismaService);
+    gateway = module.get<NotificationsGateway>(NotificationsGateway);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -43,52 +50,109 @@ describe('NotificationsService', () => {
   });
 
   describe('create', () => {
-    it('should save to DB and emit socket event', async () => {
+    it('should save to DB (stringify data) and emit to Gateway (raw data)', async () => {
       const dto = {
         userId: 'student_1',
         title: 'Test',
-        body: 'Body',
+        body: 'Content',
+        type: 'INFO',
         data: { route: '/home' },
       };
 
+      const savedNotification = {
+        id: 1,
+        ...dto,
+        data: JSON.stringify(dto.data), // DB stores string
+      };
+
+      mockPrismaService.notification.create.mockResolvedValue(savedNotification);
+
       await service.create(dto);
 
-      // Verify DB save
-      expect(prisma.notification.create).toHaveBeenCalled();
+      // 1. Verify DB Storage (JSON.stringify)
+      expect(prisma.notification.create).toHaveBeenCalledWith({
+        data: {
+          userId: dto.userId,
+          title: dto.title,
+          body: dto.body,
+          type: dto.type,
+          data: '{"route":"/home"}', // Expect stringified JSON
+        },
+      });
 
-      // Verify Socket emit
-      expect(gateway.sendToUser).toHaveBeenCalledWith(
-        'student_1',
-        expect.objectContaining({
-          title: 'Test',
-          data: { route: '/home' },
-        }),
-      );
+      // 2. Verify Gateway Emission (Raw Object)
+      expect(gateway.sendToUser).toHaveBeenCalledWith(dto.userId, {
+        ...savedNotification,
+        data: dto.data, // Expect actual object
+      });
     });
   });
 
-  describe('handleOverdueLoans', () => {
-    it('should check for overdue loans and notify', async () => {
-      // Mock finding one overdue loan
-      const overdueLoan = {
-        id: 10,
-        userId: 'student_1',
-        dueDate: new Date(),
-        book: { title: 'NestJS Basics' },
-      };
+  describe('findAll', () => {
+    it('should return notifications with parsed JSON data', async () => {
+      const dbNotifications = [
+        { id: 1, title: 'A', data: '{"id":1}' },
+        { id: 2, title: 'B', data: null },
+      ];
 
-      jest.spyOn(prisma.loan, 'findMany').mockResolvedValue([overdueLoan] as any);
+      mockPrismaService.notification.findMany.mockResolvedValue(dbNotifications);
+
+      const result = await service.findAll('user_1');
+
+      expect(result).toEqual([
+        { id: 1, title: 'A', data: { id: 1 } }, // Parsed
+        { id: 2, title: 'B', data: null },      // Null handled
+      ]);
+    });
+  });
+
+  describe('handleOverdueLoans (Cron)', () => {
+    it('should notify students and librarians about overdue loans', async () => {
+      const overdueLoans = [
+        {
+          id: 101,
+          userId: 'student_A',
+          book: { title: 'NestJS Guide' },
+        },
+        {
+          id: 102,
+          userId: 'student_B',
+          book: { title: 'Clean Code' },
+        },
+      ];
+
+      // Mock finding overdue loans
+      mockPrismaService.loan.findMany.mockResolvedValue(overdueLoans);
+
+      // Spy on the create method to ensure it's called for each student
+      const createSpy = jest.spyOn(service, 'create').mockResolvedValue({} as any);
 
       await service.handleOverdueLoans();
 
-      // Should verify that create() was called effectively
-      expect(gateway.sendToUser).toHaveBeenCalledWith(
-        'student_1',
+      // 1. Check if students were notified
+      expect(createSpy).toHaveBeenCalledTimes(2);
+      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
+        userId: 'student_A',
+        title: 'Book Overdue',
+        data: { route: '/loans/details', loanId: 101 },
+      }));
+
+      // 2. Check if Librarian was notified (Summary)
+      expect(gateway.sendToRole).toHaveBeenCalledWith(
+        UserRole.LIBRARIAN,
         expect.objectContaining({
-          title: 'Book Overdue',
-          body: expect.stringContaining('NestJS Basics'),
+          title: 'Overdue Report',
+          body: '2 books are overdue today.',
         }),
       );
+    });
+
+    it('should NOT notify librarian if no books are overdue', async () => {
+      mockPrismaService.loan.findMany.mockResolvedValue([]);
+
+      await service.handleOverdueLoans();
+
+      expect(gateway.sendToRole).not.toHaveBeenCalled();
     });
   });
 });

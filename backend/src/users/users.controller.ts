@@ -15,13 +15,12 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiTags, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiOkResponse, ApiCreatedResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
 
-@ApiTags('Users')
 @ApiBearerAuth()
-@Controller('users')
+@Controller()
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }

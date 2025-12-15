@@ -5,9 +5,10 @@ import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { JwtAuthGuard } from '../shared/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/shared/guards/roles.guard';
-import { Roles } from 'src/shared/decorators/roles.decorator';
-import { UserRole } from 'src/shared/enums/role.enum';
+import { RolesGuard } from '../shared/guards/roles.guard';
+import { Roles } from '../shared/decorators/roles.decorator';
+import { UserRole } from '../shared/enums/role.enum';
+import { type AuthenticatedRequest } from '../shared/interface/authenticated-request.interface';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -21,7 +22,7 @@ export class NotificationsController {
   }
 
   @Get()
-  findAll(@Request() req) {
+  findAll(@Request() req: AuthenticatedRequest) {
     return this.notificationsService.findAll(req.user.userId);
   }
 

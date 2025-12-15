@@ -3,7 +3,7 @@ import { BorrowingService } from './borrowing.service';
 import { CreateBorrowingDto } from './dto/create-borrowing.dto';
 import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 
-@Controller('borrowing')
+@Controller()
 export class BorrowingController {
   constructor(private readonly borrowingService: BorrowingService) { }
 
