@@ -129,7 +129,7 @@ describe('NotificationsService', () => {
 
       await service.handleOverdueLoans();
 
-      // 1. Check if students were notified
+      // Check if students were notified
       expect(createSpy).toHaveBeenCalledTimes(2);
       expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({
         userId: 'student_A',
@@ -137,7 +137,7 @@ describe('NotificationsService', () => {
         data: { route: '/loans/details', loanId: 101 },
       }));
 
-      // 2. Check if Librarian was notified (Summary)
+      // Check if Librarian was notified (Summary)
       expect(gateway.sendToRole).toHaveBeenCalledWith(
         UserRole.LIBRARIAN,
         expect.objectContaining({
@@ -147,7 +147,7 @@ describe('NotificationsService', () => {
       );
     });
 
-    it('should NOT notify librarian if no books are overdue', async () => {
+    it('should NOT notify librarian if no books are overdue', async (): Promise<void> => {
       mockPrismaService.loan.findMany.mockResolvedValue([]);
 
       await service.handleOverdueLoans();

@@ -19,7 +19,7 @@ import { RoutesModule } from './routes/routes.module';
   ],
 })
 export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
+  configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(LoggerMiddleware)
       .forRoutes({ path: '*path', method: RequestMethod.ALL });

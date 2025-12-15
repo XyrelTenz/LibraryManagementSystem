@@ -4,6 +4,7 @@ import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { UserRole } from '../shared/enums/role.enum';
+import { AuthenticatedRequest } from '../shared/interface/authenticated-request.interface';
 
 describe('NotificationsController', () => {
   let controller: NotificationsController;
@@ -54,22 +55,22 @@ describe('NotificationsController', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('should retrieve notifications for the logged-in user', async () => {
+  describe('findAll', (): void => {
+    it('should retrieve notifications for the logged-in user', async (): Promise<void> => {
       const mockRequest = { user: { userId: 'user_123', role: UserRole.STUDENT } };
       const expectedResult = [{ id: 1, title: 'Test' }];
 
       mockNotificationsService.findAll.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAll(mockRequest);
+      const result = await controller.findAll(mockRequest as unknown as AuthenticatedRequest);
 
       expect(service.findAll).toHaveBeenCalledWith('user_123');
       expect(result).toEqual(expectedResult);
     });
   });
 
-  describe('update', () => {
-    it('should update a notification status', async () => {
+  describe('update', (): void => {
+    it('should update a notification status', async (): Promise<void> => {
       const dto: UpdateNotificationDto = { isRead: true };
       const id = '1';
       const expectedResult = { id: 1, isRead: true };
