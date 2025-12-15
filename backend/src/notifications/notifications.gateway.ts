@@ -57,6 +57,7 @@ export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisco
 
   handleDisconnect(client: Socket) {
     // Socket.io handles the cleanup automatically, so we're good here
+    return client;
   }
 
   // Helper to send a message to a specific person
