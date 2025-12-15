@@ -1,19 +1,15 @@
 <template>
   <div class="login-wrapper">
     <div class="login-card">
-      <h2>Welcome Back</h2>
-      <p class="subtitle">Please enter your details to sign in.</p>
 
       <form @submit.prevent="handleLogin">
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" v-model="email" placeholder="Enter your email" required
+          <input type="email" id="email" v-model="email" placeholder="Email" required
             :class="{ 'error-border': errorMessage }" />
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" placeholder="Enter your password" required
+          <input type="password" id="password" v-model="password" placeholder="Password" required
             :class="{ 'error-border': errorMessage }" />
         </div>
 
@@ -31,24 +27,16 @@
 </template>
 
 <script lang='ts' setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // Import router for redirection
-
-const router = useRouter();
-
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
 
 const handleLogin = async () => {
-  // 1. Reset UI states
   isLoading.value = true;
   errorMessage.value = '';
 
   try {
-    // 2. Make the actual API Request
-    // Ensure your backend is running on localhost:3000
     const response = await fetch('http://localhost:5000/api/auth/login', {
       method: 'POST',
       headers: {
@@ -62,20 +50,18 @@ const handleLogin = async () => {
 
     const data = await response.json();
 
-    // 3. Check for Server Errors (e.g., 401 Unauthorized)
     if (!response.ok) {
-      throw new Error(data.message || 'Login failed. Please check your credentials.');
+      throw new Error(data.message || "Invalid Credentials");
     }
 
     localStorage.setItem('token', data.access_token);
 
 
     alert('Login Successful!');
+    console.table(`Email: ${email.value} Password: ${password.value}`);
 
-    router.push('/dashboard');
 
   } catch (error: any) {
-    // Display error to the user
     errorMessage.value = error.message;
   } finally {
     isLoading.value = false;

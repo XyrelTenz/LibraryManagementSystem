@@ -6,6 +6,9 @@ async function bootstrap(): Promise<void> {
   // Global Prefix
   app.setGlobalPrefix("api");
 
+  // Enabled CORS
+  app.enableCors();
+
   await app.listen(process.env.PORT ??= "");
 }
 bootstrap();
