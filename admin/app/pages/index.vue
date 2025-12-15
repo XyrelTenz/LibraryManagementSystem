@@ -1,7 +1,6 @@
 <template>
   <div class="login-wrapper">
     <div class="login-card">
-
       <form @submit.prevent="handleLogin">
         <div class="form-group">
           <input type="email" id="email" v-model="email" placeholder="Email" required
@@ -31,6 +30,7 @@ const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
+const token = ref('');
 
 const handleLogin = async () => {
   isLoading.value = true;
@@ -56,6 +56,10 @@ const handleLogin = async () => {
 
     localStorage.setItem('token', data.access_token);
 
+    token.value = data.access_token;
+
+    console.log(token);
+
 
     alert('Login Successful!');
     console.table(`Email: ${email.value} Password: ${password.value}`);
@@ -70,20 +74,14 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Center the form on the page */
 .login-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f4f6f8;
 }
 
 .login-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
 }
@@ -121,13 +119,11 @@ input {
   font-size: 1rem;
   transition: border-color 0.2s;
   box-sizing: border-box;
-  /* Ensures padding doesn't break width */
 }
 
 input:focus {
   outline: none;
   border-color: #42b883;
-  /* Vue Green */
 }
 
 input.error-border {
@@ -152,7 +148,7 @@ input.error-border {
   border: none;
   border-radius: 6px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 200;
   cursor: pointer;
   transition: background-color 0.2s;
 }
