@@ -30,7 +30,6 @@ const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
 const isLoading = ref(false);
-const token = ref('');
 
 const handleLogin = async () => {
   isLoading.value = true;
@@ -55,11 +54,6 @@ const handleLogin = async () => {
     }
 
     localStorage.setItem('token', data.access_token);
-
-    token.value = data.access_token;
-
-    console.log(token);
-
 
     alert('Login Successful!');
     console.table(`Email: ${email.value} Password: ${password.value}`);
