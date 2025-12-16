@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  output = "../node_modules/.prisma/client"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "sqlite"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -16,47 +16,50 @@ model User {
   role      String   @default("STUDENT")
   
   loans         Loan[]
-  notifications Notification[] // Relation to notifications
+  notifications Notification[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Book {
-  id            Int      @id @default(autoincrement())
-  title         String
-  isbn          String   @unique
-  description   String?
-  coverImage    String?
+  id              Int      @id @default(autoincrement())
+  title           String
+  isbn            String   @unique
+  description     String?
+  coverImage      String?
 
-
-  publisher String?
+  publisher       String?
   publicationYear Int?
   
   // Inventory
   totalCopies     Int      @default(1) 
   availableCopies Int      @default(1) 
   
-  qrCode        String?  @unique 
+  qrCode          String?  @unique 
 
   // Relations
-  authors       Author[]
-  categoryId    Int?
-  category      Category? @relation(fields: [categoryId], references: [id])
-  loans         Loan[]
+  authors         Author[]
+  categoryId      Int?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  loans           Loan[]
   
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  books Book[]
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  
+  // Added this field to fix your error 👇
+  description String? 
+  
+  books       Book[]
 }
 
 model Author {
-  id    Int    @id @default(autoincrement())
+  id    Int     @id @default(autoincrement())
   name  String
   bio   String?
   books Book[]
