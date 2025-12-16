@@ -5,10 +5,12 @@ import { LoggerMiddleware } from './shared/middleware/logger.middleware';
 
 // Main Routes
 import { RoutesModule } from './routes/routes.module';
+import { AuthorModule } from './author/author.module';
 
 @Module({
   imports: [
     RoutesModule,
+    AuthorModule,
   ],
   controllers: [],
   providers: [

@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsArray, IsUrl, Min } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsArray, Min } from 'class-validator';
 
 export class CreateBookDto {
   @IsString()
@@ -12,7 +12,7 @@ export class CreateBookDto {
   description?: string;
 
   @IsOptional()
-  @IsString() // Or @IsUrl() if you validate URLs
+  @IsString()
   coverImage?: string;
 
   @IsInt()
