@@ -61,6 +61,27 @@ describe('BorrowingService', () => {
       expect(mockTx.book.update).toHaveBeenCalled();
     });
 
+    // 👇 NEW TEST CASE FOR YOUR ISSUE
+    it('should ensure bookId is treated as a number when querying', async () => {
+      // Setup mocks
+      mockTx.book.findUnique.mockResolvedValue({ id: 1, availableCopies: 5 });
+      mockTx.user.findUnique.mockResolvedValue({ id: 'user-1' });
+      mockTx.loan.create.mockResolvedValue({ id: 1, status: 'BORROWED' });
+
+      // Simulate a payload where bookId is a STRING "1" (as any to bypass TS check)
+      const dto = { bookId: '1' as any, userId: 'user-1', dueDate: '2025-12-31' };
+
+      await service.create(dto);
+
+      // The Critical Check:
+      // Verify that Prisma was called with the NUMBER 1, not String "1"
+      expect(mockTx.book.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 1 } // <--- Expecting Number here
+        })
+      );
+    });
+
     it('should fail if no copies available', async () => {
       mockTx.book.findUnique.mockResolvedValue({ id: 1, availableCopies: 0 }); // 0 copies
 
