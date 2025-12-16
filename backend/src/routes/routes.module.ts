@@ -6,6 +6,8 @@ import { UsersModule } from '../users/users.module';
 import { BorrowingModule } from '../borrowing/borrowing.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { BookModule } from '../book/book.module';
+import { AuthorModule } from '../author/author.module';
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { BookModule } from '../book/book.module';
     BorrowingModule,
     NotificationsModule,
     BookModule,
+    AuthorModule,
+    CategoriesModule,
 
     RouterModule.register([
       {
@@ -35,6 +39,14 @@ import { BookModule } from '../book/book.module';
       {
         path: 'books',
         module: BookModule
+      },
+      {
+        path: "authors",
+        module: AuthorModule
+      },
+      {
+        path: "categories",
+        module: CategoriesModule
       }
     ]),
   ],
