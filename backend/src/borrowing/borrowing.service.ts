@@ -12,12 +12,11 @@ export class BorrowingService {
 
 
     return await this.prisma.$transaction(async (tx) => {
-      // Check Book Availability
 
       const bookId = Number(dto.bookId);
-
       const book = await tx.book.findUnique({ where: { id: bookId } });
 
+      // Check Book Availability
       if (!book) throw new NotFoundException('Book not found');
       if (book.availableCopies < 1) throw new BadRequestException('Book not available');
 
