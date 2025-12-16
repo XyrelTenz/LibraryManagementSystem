@@ -1,26 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class AuthorService {
-  create(createAuthorDto: CreateAuthorDto) {
-    return 'This action adds a new author';
+  constructor(private readonly prisma: PrismaService) { }
+
+  async create(createAuthorDto: CreateAuthorDto) {
+    return this.prisma.author.create({
+      data: createAuthorDto,
+    });
   }
 
-  findAll() {
-    return `This action returns all author`;
+  async findAll() {
+    return this.prisma.author.findMany({
+      include: { books: true }, // Include books if you want to see them
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} author`;
+  async findOne(id: number) {
+    const author = await this.prisma.author.findUnique({
+      where: { id },
+      include: { books: true },
+    });
+
+    if (!author) {
+      throw new NotFoundException(`Author with ID ${id} not found`);
+    }
+
+    return author;
   }
 
-  update(id: number, updateAuthorDto: UpdateAuthorDto) {
-    return `This action updates a #${id} author`;
+  async update(id: number, updateAuthorDto: UpdateAuthorDto) {
+    // Check if exists first
+    await this.findOne(id);
+
+    return this.prisma.author.update({
+      where: { id },
+      data: updateAuthorDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} author`;
+  async remove(id: number) {
+    // Check if exists first
+    await this.findOne(id);
+
+    return this.prisma.author.delete({
+      where: { id },
+    });
   }
 }
