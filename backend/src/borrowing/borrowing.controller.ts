@@ -28,7 +28,7 @@ export class BorrowingController {
     return this.borrowingService.returnBook(id);
   }
 
-  // General Update (For Admin Corrections)
+  // General Update
   @Patch(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() updateBorrowingDto: UpdateBorrowingDto) {
     return this.borrowingService.update(id, updateBorrowingDto);
