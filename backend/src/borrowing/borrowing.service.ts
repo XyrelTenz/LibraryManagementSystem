@@ -7,7 +7,7 @@ import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 export class BorrowingService {
   constructor(private readonly prisma: PrismaService) { }
 
-  // 1. Borrow a Book (Transaction)
+  // Borrow Book
   async create(dto: CreateBorrowingDto) {
     return await this.prisma.$transaction(async (tx) => {
       // Check Book Availability
@@ -37,7 +37,7 @@ export class BorrowingService {
     });
   }
 
-  // 2. Return a Book (Transaction with Penalty Calc)
+  // Return Book
   async returnBook(id: number) {
     return await this.prisma.$transaction(async (tx) => {
       const loan = await tx.loan.findUnique({ where: { id } });
@@ -48,7 +48,7 @@ export class BorrowingService {
       let penalty = 0.0;
       let status = 'RETURNED';
 
-      // Simple Penalty Logic: 5.0 per day late
+      // Penalty
       if (now > loan.dueDate) {
         const diffTime = Math.abs(now.getTime() - loan.dueDate.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

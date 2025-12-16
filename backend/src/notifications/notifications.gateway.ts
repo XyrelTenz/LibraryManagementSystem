@@ -8,6 +8,7 @@ import { DefaultEventsMap, Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from '../shared/enums/role.enum';
 
+// Make Websocket CORS Enable
 @WebSocketGateway({ cors: { origin: '*' } })
 export class NotificationsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
