@@ -28,6 +28,10 @@ model Book {
   isbn          String   @unique
   description   String?
   coverImage    String?
+
+
+  publisher String?
+  publicationYear Int?
   
   // Inventory
   totalCopies     Int      @default(1) 
