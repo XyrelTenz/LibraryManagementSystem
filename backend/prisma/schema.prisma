@@ -3,7 +3,6 @@ generator client {
   output   = "../node_modules/.prisma/client"
 }
 
-
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -53,7 +52,6 @@ model Category {
   id          Int     @id @default(autoincrement())
   name        String  @unique
   
-  // Added this field to fix your error 👇
   description String? 
   
   books       Book[]
