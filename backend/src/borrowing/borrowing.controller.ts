@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Body, Patch, Param, ParseIntPipe } from '@nestjs/common';
+// Entities
 import { BorrowingService } from './borrowing.service';
 import { CreateBorrowingDto } from './dto/create-borrowing.dto';
 import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
